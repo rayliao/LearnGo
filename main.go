@@ -1,21 +1,19 @@
 package main
 
-import (
-	"fmt"
-)
-
-const (
-	x = iota
-	y
-	z
-	w
-)
+import "fmt"
 
 func main() {
-	var c complex64 = 5 + 5i
-	fmt.Print(x)
-	fmt.Print(y)
-	fmt.Print(z)
-	fmt.Print(w)
-	fmt.Printf("Value is: %v", c)
+	fmt.Println("Hello, 世界")
 }
+
+// type Celsius float64
+// type Fahrenheit float64
+
+// const (
+// 	AbsoluteZeroC Celsius = -273.15
+// 	FreezingC     Celsius = 0
+// 	BoilingC      Celsius = 100
+// )
+
+// func (c Celsius) String() string    { return fmt.Sprintf("%g°C", c) }
+// func (f Fahrenheit) String() string { return fmt.Sprintf("%g°F", f) }
