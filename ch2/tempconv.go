@@ -2,9 +2,13 @@ package main
 
 import "fmt"
 
+// Celsius : 摄氏温度
 type Celsius float64
+
+// Fahrenheit : 华氏温度
 type Fahrenheit float64
 
+// 绝对零点，冻结点，沸点
 const (
 	AbsoluteZeroC Celsius = -273.15
 	FreezingC     Celsius = 0
