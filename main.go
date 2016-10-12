@@ -1,19 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"github.com/rayliao/go-learning/demo"
+	"github.com/rayliao/go-learning/utils"
+)
 
 func main() {
-	fmt.Println("Hello, 世界")
+	demo.Log("hahha")
+	demo.money("为什么这样就先不")
+	utils.Log("User Info:")
 }
-
-// type Celsius float64
-// type Fahrenheit float64
-
-// const (
-// 	AbsoluteZeroC Celsius = -273.15
-// 	FreezingC     Celsius = 0
-// 	BoilingC      Celsius = 100
-// )
-
-// func (c Celsius) String() string    { return fmt.Sprintf("%g°C", c) }
-// func (f Fahrenheit) String() string { return fmt.Sprintf("%g°F", f) }

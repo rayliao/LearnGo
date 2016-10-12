@@ -1,11 +1,11 @@
-package main
+package ch4
 
 import "fmt"
 
 // 初始化为零值
 var a [3]int
 
-func main() {
+func output() {
 	fmt.Println(a[0])
 	fmt.Println(a[len(a)-1])
 
