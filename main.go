@@ -1,11 +1,10 @@
 package main
 
-import (
-	"fmt"
-	// "github.com/rayliao/go-learning/demo"
-	// "github.com/rayliao/go-learning/utils"
-	"github.com/rayliao/go-learning/modals"
-)
+import
+
+// "github.com/rayliao/go-learning/demo"
+// "github.com/rayliao/go-learning/utils"
+"github.com/rayliao/go-learning/modals"
 
 // func change(arr3 *[3]int) {
 // 	for i := range arr3 {
@@ -16,12 +15,12 @@ import (
 func main() {
 	modals.Log()
 
-	type Point struct{ x, y int }
+	// type Point struct{ x, y int }
 
-	p := Point{1, 2}
-	q := Point{2, 1}
-	fmt.Println(p.x == q.x && p.y == q.y)
-	fmt.Println(p == q)
+	// p := Point{1, 2}
+	// q := Point{2, 1}
+	// fmt.Println(p.x == q.x && p.y == q.y)
+	// fmt.Println(p == q)
 
 	// arr1 := [3]int{1, 2, 3}
 	// arr2 := &[3]int{2, 3, 4}
