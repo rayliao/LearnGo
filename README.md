@@ -1,6 +1,6 @@
 # GO学习
 
-## Contents
+## Table of contents
 
 - [结构体](#结构体)
 - [函数](#函数)
