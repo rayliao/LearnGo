@@ -163,3 +163,23 @@ func f(i int, j int, k int, s string, t string)
 ```go
 func Sin(x float64) float //implemented in assembly language
 ```
+
+### 返回值
+
+如果一个函数将所有的返回值都显示的变量名，那么该函数的return语句可以省略操作数。这称之为bare return。
+```go
+func CountWordsAndImages(url string) (words, images int, err error) {
+    ...
+    return
+}
+```
+
+### 函数值
+
+函数类型的零值是nil，调用值为nil的函数值会引起panic错误：
+```go
+var f func(int) int
+f(3) // 此处f的值为nil，会引起panic错误
+```
+
+函数值可以和nil比较，但函数值之间不可以比较。
