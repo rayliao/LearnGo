@@ -1,11 +1,13 @@
 # GO学习
 
 [Go语言圣经](https://shifei.me/gopl-zh/)
-
-## Table of contents
+[Go语言圣经](https://docs.ruanjiadeng.com/gopl-zh/)
+[Go Web 编程](https://astaxie.gitbooks.io/build-web-application-with-golang/content/zh/index.html)
+[Golang学习](http://yougg.github.io/static/gonote/GolangStudy.html)
 
 - [结构体](#结构体)
 - [函数](#函数)
+- [方法](#方法)
 
 ## 结构体
 
@@ -183,3 +185,11 @@ f(3) // 此处f的值为nil，会引起panic错误
 ```
 
 函数值可以和nil比较，但函数值之间不可以比较。
+
+## 方法
+
+### 方法声明
+
+在函数声明时，在其名字之前放上一个变量，即是一个方法。
+
+方法可以被声明到任意类型，只要不是一个指针或者一个interface。
