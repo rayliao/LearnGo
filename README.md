@@ -198,3 +198,279 @@ f(3) // 此处f的值为nil，会引起panic错误
 ## 接口
 
 接口是一组方法的组合。
+
+接口类型是一种抽象的类型。
+### interface类型
+
+```go
+type Human struct {
+    name string
+    age int
+    phone string
+}
+
+type Student struct {
+    Human //匿名字段Human
+    school string
+    loan float32
+}
+
+type Employee struct {
+    Human //匿名字段Human
+    company string
+    money float32
+}
+
+//Human对象实现Sayhi方法
+func (h *Human) SayHi() {
+    fmt.Printf("Hi, I am %s you can call me on %s\n", h.name, h.phone)
+}
+
+// Human对象实现Sing方法
+func (h *Human) Sing(lyrics string) {
+    fmt.Println("La la, la la la, la la la la la...", lyrics)
+}
+
+//Human对象实现Guzzle方法
+func (h *Human) Guzzle(beerStein string) {
+    fmt.Println("Guzzle Guzzle Guzzle...", beerStein)
+}
+
+// Employee重载Human的Sayhi方法
+func (e *Employee) SayHi() {
+    fmt.Printf("Hi, I am %s, I work at %s. Call me on %s\n", e.name,
+        e.company, e.phone) //此句可以分成多行
+}
+
+//Student实现BorrowMoney方法
+func (s *Student) BorrowMoney(amount float32) {
+    s.loan += amount // (again and again and...)
+}
+
+//Employee实现SpendSalary方法
+func (e *Employee) SpendSalary(amount float32) {
+    e.money -= amount // More vodka please!!! Get me through the day!
+}
+
+// 定义interface
+type Men interface {
+    SayHi()
+    Sing(lyrics string)
+    Guzzle(beerStein string)
+}
+
+type YoungChap interface {
+    SayHi()
+    Sing(song string)
+    BorrowMoney(amount float32)
+}
+
+type ElderlyGent interface {
+    SayHi()
+    Sing(song string)
+    SpendSalary(amount float32)
+}
+```
+
+interface可以被任意的对象实现。我们看到上面的Men interface被Human、Student和Employee实现。
+同理，一个对象可以实现任意多个interface，例如上面的Student实现了Men和YoungChap两个interface。
+
+最后，任意的类型都实现了空interface(我们这样定义：interface{})，也就是包含0个method的interface。
+### interface值
+```go
+package main
+import "fmt"
+
+type Human struct {
+    name string
+    age int
+    phone string
+}
+
+type Student struct {
+    Human //匿名字段
+    school string
+    loan float32
+}
+
+type Employee struct {
+    Human //匿名字段
+    company string
+    money float32
+}
+
+//Human实现SayHi方法
+func (h Human) SayHi() {
+    fmt.Printf("Hi, I am %s you can call me on %s\n", h.name, h.phone)
+}
+
+//Human实现Sing方法
+func (h Human) Sing(lyrics string) {
+    fmt.Println("La la la la...", lyrics)
+}
+
+//Employee重载Human的SayHi方法
+func (e Employee) SayHi() {
+    fmt.Printf("Hi, I am %s, I work at %s. Call me on %s\n", e.name,
+        e.company, e.phone)
+    }
+
+// Interface Men被Human,Student和Employee实现
+// 因为这三个类型都实现了这两个方法
+type Men interface {
+    SayHi()
+    Sing(lyrics string)
+}
+
+func main() {
+    mike := Student{Human{"Mike", 25, "222-222-XXX"}, "MIT", 0.00}
+    paul := Student{Human{"Paul", 26, "111-222-XXX"}, "Harvard", 100}
+    sam := Employee{Human{"Sam", 36, "444-222-XXX"}, "Golang Inc.", 1000}
+    Tom := Employee{Human{"Tom", 37, "222-444-XXX"}, "Things Ltd.", 5000}
+
+    //定义Men类型的变量i
+    var i Men
+
+    //i能存储Student
+    i = mike
+    fmt.Println("This is Mike, a Student:")
+    i.SayHi()
+    i.Sing("November rain")
+
+    //i也能存储Employee
+    i = Tom
+    fmt.Println("This is Tom, an Employee:")
+    i.SayHi()
+    i.Sing("Born to be wild")
+
+    //定义了slice Men
+    fmt.Println("Let's use a slice of Men and see what happens")
+    x := make([]Men, 3)
+    //这三个都是不同类型的元素，但是他们实现了interface同一个接口
+    x[0], x[1], x[2] = paul, sam, mike
+
+    for _, value := range x{
+        value.SayHi()
+    }
+}
+```
+
+你会发现interface就是一组抽象方法的集合，它必须由其他非interface类型实现，而不能自我实现，
+Go通过interface实现了duck-typing: 即"当看到一只鸟走起来像鸭子、游泳起来像鸭子、叫起来也像鸭子，
+那么这只鸟就可以被称为鸭子"。
+
+### 空interface
+
+所有的类型都实现了空interface。
+```go
+// 定义a为空接口
+var a interface{}
+var i int = 5
+s := "Hello world"
+// a可以存储任意类型的数值
+a = i
+a = s
+```
+一个函数把interface{}作为参数，那么他可以接受任意类型的值作为参数，
+如果一个函数返回interface{},那么也就可以返回任意类型的值。
+
+### interface函数参数
+
+interface的变量可以持有任意实现该interface类型的对象，
+可以通过定义interface参数，让函数接受各种类型的参数。
+
+举个例子：fmt.Println是我们常用的一个函数，但是你是否注意到它可以接受任意类型的数据。
+打开fmt的源码文件，你会看到这样一个定义:
+```go
+type Stringer interface {
+     String() string
+}
+```
+任何实现了String方法的类型都能作为参数被fmt.Println调用:
+```go
+package main
+import (
+    "fmt"
+    "strconv"
+)
+
+type Human struct {
+    name string
+    age int
+    phone string
+}
+
+// 通过这个方法 Human 实现了 fmt.Stringer
+func (h Human) String() string {
+    return "❰"+h.name+" - "+strconv.Itoa(h.age)+" years -  ✆ " +h.phone+"❱"
+}
+
+func main() {
+    Bob := Human{"Bob", 39, "000-7777-XXX"}
+    fmt.Println("This Human is : ", Bob)
+}
+```
+### interface变量存储的类型
+
+判断接口变量保存了哪个类型的对象？
+Comma-ok断言，判断是否是该类型的变量：
+value, ok = element.(T)，这里value就是变量的值，ok是一个bool类型，element是interface变量，T是断言的类型。
+```go
+package main
+
+  import (
+      "fmt"
+      "strconv"
+  )
+
+  type Element interface{}
+  type List [] Element
+
+  type Person struct {
+      name string
+      age int
+  }
+
+  //打印
+  func (p Person) String() string {
+      return "(name: " + p.name + " - age: "+strconv.Itoa(p.age)+ " years)"
+  }
+
+  func main() {
+      list := make(List, 3)
+      list[0] = 1 //an int
+      list[1] = "Hello" //a string
+      list[2] = Person{"Dennis", 70}
+
+      for index, element := range list{
+          switch value := element.(type) {
+              case int:
+                  fmt.Printf("list[%d] is an int and its value is %d\n", index, value)
+              case string:
+                  fmt.Printf("list[%d] is a string and its value is %s\n", index, value)
+              case Person:
+                  fmt.Printf("list[%d] is a Person and its value is %s\n", index, value)
+              default:
+                  fmt.Println("list[%d] is of a different type", index)
+          }
+      }
+  }
+```
+### 嵌入interface
+```go
+type Interface interface {
+    sort.Interface //嵌入字段sort.Interface
+    Push(x interface{}) //a Push method to push elements into the heap
+    Pop() interface{} //a Pop elements that pops elements from the heap
+}
+```
+sort.Interface其实就是嵌入字段，把sort.Interface的所有method给隐式的包含进来了。
+
+另一个例子就是io包下面的 io.ReadWriter ，它包含了io包下面的Reader和Writer两个interface：
+```go
+// io.ReadWriter
+type ReadWriter interface {
+    Reader
+    Writer
+}
+```
