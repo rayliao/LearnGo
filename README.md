@@ -5,10 +5,51 @@
 [Go Web 编程](https://astaxie.gitbooks.io/build-web-application-with-golang/content/zh/index.html)
 [Golang学习](http://yougg.github.io/static/gonote/GolangStudy.html)
 
+- [Go基础](#Go基础)
 - [结构体](#结构体)
 - [函数](#函数)
 - [方法](#方法)
 - [接口](#接口)
+- [并发](#并发)
+
+## Go基础
+
+### map
+
+```go
+// 声明一个key是字符串，值为int的字典,这种方式的声明需要在使用之前使用make初始化
+var numbers map[string]int
+// 另一种map的声明方式
+numbers := make(map[string]int)
+numbers["one"] = 1  //赋值
+numbers["ten"] = 10 //赋值
+numbers["three"] = 3
+
+fmt.Println("第三个数字是: ", numbers["three"]) // 读取数据
+// 打印出来如:第三个数字是: 3
+```
+通过`deletes`删除`map`元素
+```go
+// 初始化一个字典
+rating := map[string]float32{"C":5, "Go":4.5, "Python":4.5, "C++":2 }
+// map有两个返回值，第二个返回值，如果不存在key，那么ok为false，如果存在ok为true
+csharpRating, ok := rating["C#"]
+if ok {
+    fmt.Println("C# is in the map and its rating is ", csharpRating)
+} else {
+    fmt.Println("We have no rating associated with C# in the map")
+}
+
+delete(rating, "C")  // 删除key为C的元素
+```
+
+### make、new操作
+
+make用于内建类型（map、slice 和channel）的内存分配。new用于各种类型的内存分配。
+
+> new返回指针。
+
+> make返回初始化后的（非零）值。
 
 ## 结构体
 
@@ -473,4 +514,47 @@ type ReadWriter interface {
     Reader
     Writer
 }
+```
+
+## 并发
+
+### goroutine
+
+通过关键字`go`就启动了一个`goroutine`:
+```go
+go hello(a, b, c)
+```
+```go
+package main
+
+import (
+    "fmt"
+    "runtime"
+)
+
+func say(s string) {
+    for i := 0; i < 5; i++ {
+        runtime.Gosched()
+        fmt.Println(s)
+    }
+}
+
+func main() {
+    go say("world") //开一个新的Goroutines执行
+    say("hello") //当前Goroutines执行
+}
+```
+
+### channels
+
+必须使用`make`创建`channels`
+```go
+ci := make(chan int)
+cs := make(chan string)
+cf := make(chan interface{})
+```
+通过操作符`<-`来接收和发送数据
+```go
+ch <- v // 发送v到channel ch
+v := <- ch // 从ch接收数据并赋值给v
 ```
