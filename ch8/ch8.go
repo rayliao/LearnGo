@@ -1,8 +1,6 @@
 package ch8
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func sum(a []int, c chan int) {
 	total := 0
@@ -22,7 +20,7 @@ func Log() {
 	x, y := <-c, <-c
 	fmt.Println(x, y, x+y)
 
-	ha := make(chan int, 1)
+	ha := make(chan int, 2)
 	ha <- 1
 	ha <- 2
 	fmt.Println(<-ha)
