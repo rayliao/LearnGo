@@ -1,6 +1,6 @@
 package main
 
-import "github.com/rayliao/learninggo/ch8"
+import "fmt"
 
 // say func
 // func say(s string) {
@@ -11,7 +11,13 @@ import "github.com/rayliao/learninggo/ch8"
 // }
 
 func main() {
-	ch8.Log()
+	// ch8.Log()
+
+	ha := make(chan int, 2)
+	ha <- 1
+	ha <- 2
+	fmt.Println(<-ha)
+	fmt.Println(<-ha)
 
 	// var x float64 = 3.4
 	// v := reflect.ValueOf(x)

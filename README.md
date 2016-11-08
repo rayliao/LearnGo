@@ -1,8 +1,11 @@
 # GO学习
 
 [Go语言圣经](https://shifei.me/gopl-zh/)
+
 [Go语言圣经](https://docs.ruanjiadeng.com/gopl-zh/)
+
 [Go Web 编程](https://astaxie.gitbooks.io/build-web-application-with-golang/content/zh/index.html)
+
 [Golang学习](http://yougg.github.io/static/gonote/GolangStudy.html)
 
 - [Go基础](#Go基础)
