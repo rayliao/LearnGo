@@ -1,6 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"time"
+
+	"github.com/rayliao/LearningGo/ch9"
+)
 
 // say func
 // func say(s string) {
@@ -13,11 +19,24 @@ import "fmt"
 func main() {
 	// ch8.Log()
 
-	ha := make(chan int, 2)
-	ha <- 1
-	ha <- 2
-	fmt.Println(<-ha)
-	fmt.Println(<-ha)
+	// ha := make(chan int, 2)
+	// ha <- 1
+	// ha <- 2
+	// fmt.Println(<-ha)
+	// fmt.Println(<-ha)
+
+	go func() {
+		ch9.Deposit(200)
+		fmt.Println("a=", ch9.Balance())
+	}()
+
+	go func() {
+		ch9.Deposit(100)
+		fmt.Println("b=", ch9.Balance())
+	}()
+
+	time.Sleep(1 * time.Second)
+	fmt.Println("4444")
 
 	// var x float64 = 3.4
 	// v := reflect.ValueOf(x)
