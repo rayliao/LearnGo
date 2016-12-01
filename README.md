@@ -14,6 +14,7 @@
 - [方法](#方法)
 - [接口](#接口)
 - [并发](#并发)
+- [包和工具](#包和工具)
 
 ## Go基础
 
@@ -578,3 +579,57 @@ cf := make(chan interface{})
 ch <- v // 发送v到channel ch
 v := <- ch // 从ch接收数据并赋值给v
 ```
+
+## 包和工具
+
+### 包的简介
+
+独立的单元，便于理解和更新，保持独立性，实现封装性。
+
+### 导入路径
+
+每个包是由一个全局唯一的字符串所标识的导入路径定位。出现在import语句中的导入路径也是字符串。
+```go
+import (
+    "fmt"
+    "math/rand"
+    "encoding/json"
+
+    "golang.org/x/net/html"
+
+    "github.com/go-sql-driver/mysql"
+)
+```
+自定义包的路径从根目录src开始
+
+### 包声明
+```go
+package main
+
+import (
+    "fmt"
+    "math/rand"
+)
+
+func main() {
+    fmt.Println(rand.Int())
+}
+```
+默认的包名就是包导入路径名的最后一段，因此即使两个包的导入路径不同，它们依然可能有一个相同的包名。
+例如，math/rand包和crypto/rand包的包名都是rand。
+
+### 包的匿名导入
+```go
+import _ "image/png" // register PNG decoder
+```
+
+### 工具
+src: 用于存储源代码
+
+pkg：用于保存编译后的包的目标文件
+
+bin：用于保存编译后的可执行文件
+
+#### 包文档
+
+包中每个导出的成员和包声明前都应该包含目的和用法说明的注释。
