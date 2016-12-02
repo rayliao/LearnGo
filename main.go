@@ -1,12 +1,15 @@
 package main
 
 import (
+	"crypto/md5"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func init() {
@@ -32,7 +35,11 @@ func login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("method:", r.Method)
 	if r.Method == "GET" {
 		t, _ := template.ParseFiles("views/login.html")
-		log.Println(t.Execute(w, nil))
+		crutime := time.Now().Unix()
+		h := md5.New()
+		io.WriteString(h, strconv.FormatInt(crutime, 10))
+		token := fmt.Sprintf("%x", h.Sum(nil))
+		log.Println(t.Execute(w, token))
 	} else {
 		r.ParseForm()
 		if len(r.Form["username"][0]) == 0 {
