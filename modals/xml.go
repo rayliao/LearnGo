@@ -60,4 +60,7 @@ func GenerateXML() {
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 	}
+	os.Stdout.Write([]byte(xml.Header))
+
+	os.Stdout.Write(output)
 }

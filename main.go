@@ -15,7 +15,7 @@ func sum(vals ...int) int {
 
 func main() {
 
-	modals.ParseXML()
+	modals.GenerateJSON()
 
 	varlues := []int{1, 2, 1}
 	fmt.Println(sum(varlues...))
