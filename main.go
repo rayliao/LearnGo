@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/rayliao/LearningGo/web"
+	"github.com/rayliao/LearningGo/modals"
 )
 
 func sum(vals ...int) int {
@@ -15,9 +15,7 @@ func sum(vals ...int) int {
 
 func main() {
 
-	web.Server()
-
-	web.Client()
+	modals.ParseBase()
 
 	varlues := []int{1, 2, 1}
 	fmt.Println(sum(varlues...))
