@@ -81,35 +81,78 @@ func TestSumALlTails(t *testing.T) {
 	})
 }
 
-func TestStruct(t *testing.T) {
-	checkStruct := func(t *testing.T, got, want float64) {
-		t.Helper()
+func TestArea(t *testing.T) {
+	areaTests := []struct {
+		name  string
+		shape Shape
+		want  float64
+	}{
+		{"Rectangle", Rectangle{width: 12, height: 6}, 72.0},
+		{"Circle", Circle{10.0}, 314.1592653589793},
+		{"Triangle", Triangle{12, 6}, 36.0},
+	}
+
+	for _, tt := range areaTests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.shape.Area()
+			if got != tt.want {
+				t.Errorf("%#v got %.2f want %.2f", tt.shape, got, tt.want)
+			}
+		})
+	}
+
+	t.Run("试下带参数的函数", func(t *testing.T) {
+		rectangle := Rectangle{width: 4.0, height: 4.0}
+		got := rectangle.More(1.0)
+		want := 16.0
 		if got != want {
 			t.Errorf("got %.2f want %.2f", got, want)
 		}
+	})
+}
+
+func TestWallet(t *testing.T) {
+	checkBalance := func(t *testing.T, wallet Wallet, want Bitcoin) {
+		t.Helper()
+		got := wallet.Balance()
+		if got != want {
+			t.Errorf("got %s want %s", got, want)
+		}
 	}
+	assertError := func(t *testing.T, got error, want error) {
+		if got == nil {
+			t.Fatal("didn't get an error but wanted one")
+		}
 
-	t.Run("perimeter", func(t *testing.T) {
-		rectangle := Rectangle{10.0, 10.0}
-		got := Perimeter(rectangle)
-		want := 40.0
-
-		checkStruct(t, got, want)
+		if got != want {
+			t.Errorf("got '%s' want '%s'", got, want)
+		}
+	}
+	assertNoError := func(t *testing.T, got error) {
+		if got != nil {
+			t.Fatal("got an error but didn't want one")
+		}
+	}
+	t.Run("Deposit", func(t *testing.T) {
+		wallet := Wallet{}
+		wallet.Deposit(Bitcoin(10))
+		checkBalance(t, wallet, Bitcoin(10))
 	})
 
-	t.Run("area", func(t *testing.T) {
-		rectangle := Rectangle{12.0, 6.0}
-		got := Area(rectangle)
-		want := 72.0
-
-		checkStruct(t, got, want)
+	t.Run("Withdraw", func(t *testing.T) {
+		wallet := Wallet{balance: Bitcoin(20)}
+		err := wallet.Withdraw(Bitcoin(10))
+		checkBalance(t, wallet, Bitcoin(10))
+		assertNoError(t, err)
 	})
 
-	t.Run("circle", func(t *testing.T) {
-		circle := Circle{10.0}
-		got := Area(circle)
-		want := 314.16
+	t.Run("Withdraw too much", func(t *testing.T) {
+		startingBalance := Bitcoin(20)
+		wallet := Wallet{startingBalance}
 
-		checkStruct(t, got, want)
+		err := wallet.Withdraw(Bitcoin(100))
+
+		checkBalance(t, wallet, startingBalance)
+		assertError(t, err, ErrInsufficientFunds)
 	})
 }

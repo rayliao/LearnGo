@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"math"
 )
 
 const chinese = "Chinese"
@@ -64,10 +66,65 @@ type Rectangle struct {
 	height float64
 }
 
+type Circle struct {
+	radius float64
+}
+
+type Triangle struct {
+	base   float64
+	height float64
+}
+
+// 一个接口，约定成俗
+type Shape interface {
+	Area() float64
+}
+
 func Perimeter(r Rectangle) float64 {
 	return 2 * (r.width + r.height)
 }
 
-func Area(r Rectangle) float64 {
+// 计算正方形的周长，属于Rectangle的函数
+func (r Rectangle) Area() float64 {
 	return r.width * r.height
+}
+
+func (c Circle) Area() float64 {
+	return c.radius * c.radius * math.Pi
+}
+
+// 属于结构体的方法，用来实现接口
+func (t Triangle) Area() float64 {
+	return 0.5 * t.base * t.height
+}
+
+func (t Rectangle) More(extra float64) float64 {
+	return extra * t.height * t.width
+}
+
+type Bitcoin int
+type Wallet struct {
+	balance Bitcoin
+}
+
+func (b Bitcoin) String() string {
+	return fmt.Sprintf("%d BTC", b)
+}
+
+func (w *Wallet) Deposit(amount Bitcoin) {
+	w.balance += amount
+}
+
+var ErrInsufficientFunds = errors.New("cannot withdraw, insufficient funds")
+
+func (w *Wallet) Withdraw(amount Bitcoin) error {
+	if amount > w.balance {
+		return ErrInsufficientFunds
+	}
+	w.balance -= amount
+	return nil
+}
+
+func (w *Wallet) Balance() Bitcoin {
+	return w.balance
 }
