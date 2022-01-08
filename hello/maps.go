@@ -1,5 +1,10 @@
 package main
 
+import (
+	"bytes"
+	"fmt"
+)
+
 type Dictionary map[string]string
 
 const (
@@ -53,4 +58,8 @@ func (d Dictionary) Update(word, definition string) error {
 
 func (d Dictionary) Delete(word string) {
 	delete(d, word)
+}
+
+func Greet(writer *bytes.Buffer, name string) {
+	fmt.Fprintf(writer, "Hello, %s", name)
 }

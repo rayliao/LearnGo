@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -107,5 +108,17 @@ func TestDelete(t *testing.T) {
 
 	if err != ErrNotFound {
 		t.Errorf("希望 '%s' 是已经被删除了", word)
+	}
+}
+
+func TestGreet(t *testing.T) {
+	buffer := bytes.Buffer{}
+	Greet(&buffer, "Ray")
+
+	got := buffer.String()
+	want := "Hello, Ray"
+
+	if got != want {
+		t.Errorf(" got '%s' want '%s'", got, want)
 	}
 }
