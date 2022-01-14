@@ -3,7 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"math"
+	"net/http"
+	"os"
 )
 
 const chinese = "Chinese"
@@ -19,6 +22,10 @@ func Hello(name string, language string) string {
 	return greetingPrefix(language) + name
 }
 
+func GreetHello(writer io.Writer, name string) {
+	fmt.Fprintf(writer, "Hello, %s", name)
+}
+
 func greetingPrefix(language string) (prefix string) {
 	switch language {
 	case chinese:
@@ -31,8 +38,14 @@ func greetingPrefix(language string) (prefix string) {
 	return
 }
 
+func MyGreeterHandler(w http.ResponseWriter, r *http.Request) {
+	GreetHello(w, "World")
+}
+
 func main() {
 	fmt.Println(Hello("World", ""))
+	http.ListenAndServe(":5000", http.HandlerFunc(MyGreeterHandler))
+	GreetHello(os.Stdout, "Jay")
 }
 
 func Sum(numbers []int) (sum int) {

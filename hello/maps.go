@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
+	"io"
 )
 
 type Dictionary map[string]string
@@ -60,6 +60,6 @@ func (d Dictionary) Delete(word string) {
 	delete(d, word)
 }
 
-func Greet(writer *bytes.Buffer, name string) {
+func Greet(writer io.Writer, name string) {
 	fmt.Fprintf(writer, "Hello, %s", name)
 }
