@@ -7,16 +7,25 @@ import (
 	"testing"
 )
 
+type StubPlayerStore struct {
+	scores map[string]int
+}
+
+func (s StubPlayerStore) GetPlayerScore(name string) int {
+	return s.scores[name]
+}
+
+func (s StubPlayerStore) RecordWin(name string) {
+	s.scores[name]++
+}
+
 func TestHttp(t *testing.T) {
-	store := StubPlayerStore{
-		map[string]int{
-			"rayliao": 20,
-			"gg":      10,
-		},
-		nil,
-	}
-	server := &PlayerServer{&store}
-	t.Run("returns Pepper's score", func(t *testing.T) {
+	store := StubPlayerStore{map[string]int{
+		"rayliao": 20,
+		"gg":      10,
+	}}
+	server := &PlayerServer{store}
+	t.Run("returns rayliao's score", func(t *testing.T) {
 		request := newGetScoreRequest("rayliao")
 		response := httptest.NewRecorder()
 
@@ -26,7 +35,7 @@ func TestHttp(t *testing.T) {
 		assertResponseBody(t, response.Body.String(), "20")
 	})
 
-	t.Run("returns GG's score", func(t *testing.T) {
+	t.Run("returns gg's score", func(t *testing.T) {
 		request := newGetScoreRequest("gg")
 		response := httptest.NewRecorder()
 
@@ -47,10 +56,7 @@ func TestHttp(t *testing.T) {
 }
 
 func TestStoreWins(t *testing.T) {
-	store := StubPlayerStore{
-		map[string]int{},
-		nil,
-	}
+	store := StubPlayerStore{make(map[string]int)}
 
 	server := &PlayerServer{&store}
 
@@ -58,18 +64,22 @@ func TestStoreWins(t *testing.T) {
 		player := "jonliao"
 
 		request := newPostWinRequest(player)
-		response := httptest.NewRecorder()
+		responsePost := httptest.NewRecorder()
 
-		server.ServeHTTP(response, request)
+		server.ServeHTTP(responsePost, request)
+		server.ServeHTTP(responsePost, request)
 
-		assertStatus(t, response.Code, http.StatusAccepted)
+		assertStatus(t, responsePost.Code, http.StatusAccepted)
+		responseGet := httptest.NewRecorder()
 
-		if len(store.winCalls) != 1 {
-			t.Fatalf("got %d calls to RecordWin want %d", len(store.winCalls), 1)
+		server.ServeHTTP(responseGet, newGetScoreRequest(player))
+
+		if len(store.scores) != 1 {
+			t.Fatalf("got %d calls to RecordWin want %d", len(store.scores), 1)
 		}
 
-		if store.winCalls[0] != player {
-			t.Errorf("did not store correct winner got '%s' want '%s'", store.winCalls[0], player)
+		if responseGet.Body.String() != "2" {
+			t.Errorf("did not store correct winner got %d want %d", store.scores[player], 2)
 		}
 	})
 }
