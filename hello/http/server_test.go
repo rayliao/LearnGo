@@ -1,12 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -145,6 +145,36 @@ func TestLeague(t *testing.T) {
 	})
 }
 
+type FileSystemStore struct {
+	database io.Reader
+}
+
+func (f *FileSystemStore) GetLeague() []Player {
+	league, _ := NewLeague(f.database)
+
+	return league
+}
+
+func TestFileSystemStore(t *testing.T) {
+	t.Run("/league from a reader", func(t *testing.T) {
+		database := strings.NewReader(`[
+			{"Name": "Cleo", "Wins": 10},
+			{"Name": "Chris", "Wins": 40},
+		]`)
+
+		store := FileSystemStore{database}
+
+		got := store.GetLeague()
+
+		want := []Player{
+			{"Cleo", 10},
+			{"Chris", 40},
+		}
+
+		assertLeague(t, got, want)
+	})
+}
+
 func newLeagueRequest() *http.Request {
 	req, _ := http.NewRequest(http.MethodGet, "/league", nil)
 	return req
@@ -155,15 +185,10 @@ func newPostWinRequest(name string) *http.Request {
 	return req
 }
 
-func getLeagueFromResponse(t *testing.T, body io.Reader) (league []Player) {
+func getLeagueFromResponse(t *testing.T, body io.Reader) []Player {
 	t.Helper()
-	err := json.NewDecoder(body).Decode(&league)
-
-	if err != nil {
-		t.Fatalf("Unable to parse response from server '%s' into slice of Player, '%v'", body, err)
-	}
-
-	return
+	league, _ := NewLeague(body)
+	return league
 }
 
 func assertLeague(t *testing.T, got, want []Player) {
