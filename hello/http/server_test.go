@@ -6,24 +6,24 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
-	"strings"
 	"testing"
 )
 
 type StubPlayerStore struct {
-	scores map[string]int
-	league []Player
+	scores   map[string]int
+	winCalls []string
+	league   []Player
 }
 
-func (s StubPlayerStore) GetPlayerScore(name string) int {
+func (s *StubPlayerStore) GetPlayerScore(name string) int {
 	return s.scores[name]
 }
 
-func (s StubPlayerStore) RecordWin(name string) {
-	s.scores[name]++
+func (s *StubPlayerStore) RecordWin(name string) {
+	s.winCalls = append(s.winCalls, name)
 }
 
-func (s StubPlayerStore) GetLeague() []Player {
+func (s *StubPlayerStore) GetLeague() []Player {
 	return s.league
 }
 
@@ -31,8 +31,9 @@ func TestHttp(t *testing.T) {
 	store := StubPlayerStore{map[string]int{
 		"rayliao": 20,
 		"gg":      10,
-	}, nil}
-	server := NewPlayerServer(store)
+	}, nil, nil}
+	server := NewPlayerServer(&store)
+
 	t.Run("returns rayliao's score", func(t *testing.T) {
 		request := newGetScoreRequest("rayliao")
 		response := httptest.NewRecorder()
@@ -64,7 +65,7 @@ func TestHttp(t *testing.T) {
 }
 
 func TestStoreWins(t *testing.T) {
-	store := StubPlayerStore{make(map[string]int), nil}
+	store := StubPlayerStore{make(map[string]int), nil, nil}
 
 	server := NewPlayerServer(&store)
 
@@ -73,52 +74,17 @@ func TestStoreWins(t *testing.T) {
 
 		request := newPostWinRequest(player)
 		responsePost := httptest.NewRecorder()
-
-		server.ServeHTTP(responsePost, request)
 		server.ServeHTTP(responsePost, request)
 
 		assertStatus(t, responsePost.Code, http.StatusAccepted)
-		responseGet := httptest.NewRecorder()
 
-		server.ServeHTTP(responseGet, newGetScoreRequest(player))
-
-		if len(store.scores) != 1 {
-			t.Fatalf("got %d calls to RecordWin want %d", len(store.scores), 1)
+		if len(store.winCalls) != 1 {
+			t.Fatalf("got %d calls to RecordWin want %d", len(store.winCalls), 1)
 		}
 
-		if responseGet.Body.String() != "2" {
-			t.Errorf("did not store correct winner got %d want %d", store.scores[player], 2)
+		if store.winCalls[0] != player {
+			t.Errorf("did not store correct winner got %d want %d", store.winCalls[0], player)
 		}
-	})
-}
-
-func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	store := NewInMemoryPlayerStore()
-	server := NewPlayerServer(store)
-	player := "Sam"
-
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-
-	t.Run("get score", func(t *testing.T) {
-		response := httptest.NewRecorder()
-		server.ServeHTTP(response, newGetScoreRequest(player))
-		assertStatus(t, response.Code, http.StatusOK)
-		assertResponseBody(t, response.Body.String(), "3")
-	})
-
-	t.Run("get league", func(t *testing.T) {
-		response := httptest.NewRecorder()
-		server.ServeHTTP(response, newLeagueRequest())
-		assertStatus(t, response.Code, http.StatusOK)
-
-		got := getLeagueFromResponse(t, response.Body)
-		want := []Player{
-			{"Sam", 3},
-		}
-
-		assertLeague(t, got, want)
 	})
 }
 
@@ -129,7 +95,7 @@ func TestLeague(t *testing.T) {
 			{"Chris", 2},
 			{"Liao", 33},
 		}
-		store := StubPlayerStore{nil, wantedLeague}
+		store := StubPlayerStore{nil, nil, wantedLeague}
 		server := NewPlayerServer(&store)
 		request := newLeagueRequest()
 		response := httptest.NewRecorder()
@@ -142,36 +108,6 @@ func TestLeague(t *testing.T) {
 		if response.Header().Get("content-type") != "application/json" {
 			t.Errorf("response did not have content-type of application/json, got %v", response.Header())
 		}
-	})
-}
-
-type FileSystemStore struct {
-	database io.Reader
-}
-
-func (f *FileSystemStore) GetLeague() []Player {
-	league, _ := NewLeague(f.database)
-
-	return league
-}
-
-func TestFileSystemStore(t *testing.T) {
-	t.Run("/league from a reader", func(t *testing.T) {
-		database := strings.NewReader(`[
-			{"Name": "Cleo", "Wins": 10},
-			{"Name": "Chris", "Wins": 40},
-		]`)
-
-		store := FileSystemStore{database}
-
-		got := store.GetLeague()
-
-		want := []Player{
-			{"Cleo", 10},
-			{"Chris", 40},
-		}
-
-		assertLeague(t, got, want)
 	})
 }
 
@@ -196,6 +132,13 @@ func assertLeague(t *testing.T, got, want []Player) {
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func assertScoreEquals(t *testing.T, got, want int) {
+	t.Helper()
+	if got != want {
+		t.Errorf("got %d want %d", got, want)
 	}
 }
 
