@@ -1,8 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"net/http"
+	"os"
 
 	poker "github.com/rayliao/hello/app"
 )
@@ -14,9 +15,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	server := poker.NewPlayerServer(store)
+	fmt.Println("let's play poker")
+	fmt.Println("Type {Name} wins to record a win")
 
-	if err := http.ListenAndServe(":5000", server); err != nil {
-		log.Fatalf("could not listen on port 5000 %v", err)
-	}
+	poker.NewCLI(store, os.Stdin).PlayPoker()
 }
